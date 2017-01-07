@@ -149,7 +149,7 @@ var AlmondDevice = function(client, config) {
     }
 }
 
-AlmondDevice.prototype.setProp = function(prop, value) {
+AlmondDevice.prototype.setProp = function(prop, value, cb) {
     var self = this;
 
     this.client._sendMessage({
@@ -161,6 +161,10 @@ AlmondDevice.prototype.setProp = function(prop, value) {
         if (message.Success) {
             debug("Successfully updated value", prop, "to", value)
             self.updateProp(prop, value);
+
+            if (cb != undefined) {
+                cb(null);
+            }
         }
     });
 }
