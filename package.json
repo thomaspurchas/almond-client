@@ -1,6 +1,6 @@
 {
   "name": "almond-client",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "Node client that uses the Almond+ websocket API to do stuff.",
   "main": "index.js",
   "scripts": {
