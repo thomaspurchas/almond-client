@@ -1,10 +1,12 @@
+"use strict";
+
 var util = require('util');
 var WebSocket = require('ws');
 var EventEmitter = require('events').EventEmitter;
 var debug = require('debug')('almond-client');
 var randomstring = require("randomstring");
 
-AlmondClient = module.exports = function(config) {
+var AlmondClient = module.exports = function(config) {
     EventEmitter.call(this);
     this.host = config.host;
     this.port = config.port;
@@ -17,12 +19,11 @@ AlmondClient = module.exports = function(config) {
     this.wsEmitter = new WebSocketEmitter();
 
     this._devices = {};
-    this.devices = this._devices;
 
     var self = this;
     this.ws.on('open', function open() {
         self._getGeviceList();
-        self.once("deviceAdded", function() {
+        self.once("gotDeviceList", function() {
             self.emit("ready");
         });
     });
@@ -32,6 +33,18 @@ AlmondClient = module.exports = function(config) {
 }
 
 util.inherits(AlmondClient, EventEmitter);
+
+AlmondClient.prototype.getDevices = function() {
+    var devices = [];
+    for (var device in this._devices) {
+        devices.push(this._devices[device]);
+    }
+    return devices;
+}
+
+AlmondClient.prototype.getDeviceById = function(id) {
+    return this._devices[id];
+}
 
 AlmondClient.prototype._getGeviceList = function() {
     var self = this;
@@ -45,6 +58,8 @@ AlmondClient.prototype._getGeviceList = function() {
                 self._addDevice(devices[deviceID]);
             }
         }
+
+        self.emit("gotDeviceList")
     });
 }
 
@@ -75,7 +90,7 @@ AlmondClient.prototype._processDeviceUpdate = function(message) {
 
 AlmondClient.prototype._addDevice = function(devData) {
     debug("Adding device", devData);
-    device = new AlmondDevice(this, devData);
+    var device = new AlmondDevice(this, devData);
 
     this._devices[device.id] = device;
     this.emit("deviceAdded", device);
@@ -107,7 +122,7 @@ AlmondClient.prototype._recvMessage = function(message) {
     }
 }
 
-AlmondDevice = function(client, config) {
+var AlmondDevice = function(client, config) {
     EventEmitter.call(this);
     this.client = client;
 
@@ -156,7 +171,7 @@ AlmondDevice.prototype.updateValue = function(id, value) {
 
 util.inherits(AlmondDevice, EventEmitter);
 
-WebSocketEmitter = function() {
+var WebSocketEmitter = function() {
     EventEmitter.call(this);
 }
 
