@@ -159,10 +159,17 @@ AlmondDevice.prototype.setProp = function(prop, value, cb) {
         "Value": value
     }, function(err, message) {
         if (message.Success) {
-            debug("Successfully updated value", prop, "to", value)
-            self.updateProp(prop, value);
+            debug("Successfully sent property [%s] update [%s]", prop, value)
 
-            if (cb) cb(null);
+            var waitForDevicePropUpdate = function(propUpdated, newValue) {
+                if (propUpdated == prop) {
+                    self.removeListener('valueUpdated', waitForDevicePropUpdate);
+                    cb(newValue);
+                }
+            }
+            if (cb) {
+                self.prependListener('valueUpdated', waitForDevicePropUpdate);
+            }
         }
     });
 }
