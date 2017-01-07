@@ -5,6 +5,7 @@ var WebSocket = require('ws');
 var EventEmitter = require('events').EventEmitter;
 var debug = require('debug')('almond-client');
 var randomstring = require("randomstring");
+var deviceProps = require("./deviceProperties.js");
 
 var AlmondClient = module.exports = function(config) {
     EventEmitter.call(this);
@@ -85,7 +86,7 @@ AlmondClient.prototype._processDeviceUpdate = function(message) {
         var device = this._devices[deviceID];
 
         for (var index in deviceValues) {
-            device.updateValue(index, deviceValues[index].Value);
+            device.updateProp(index, deviceValues[index].Value);
         }
     }
 }
@@ -135,10 +136,12 @@ var AlmondDevice = function(client, config) {
     this.manufacturer = config.Data.Manufacturer || "Unknown Manufacturer";
     this.model = config.Data.Model || "Unknown Model";
 
-    this.deviceValues = {};
+    this.props = deviceProps[this.type];
+
+    this._deviceValues = {};
 
     for (var id in config.DeviceValues) {
-        this.deviceValues[id] = {
+        this._deviceValues[id] = {
             id: id,
             name: config.DeviceValues[id].Name,
             value: config.DeviceValues[id].Value
@@ -146,29 +149,33 @@ var AlmondDevice = function(client, config) {
     }
 }
 
-AlmondDevice.prototype.setValue = function(id, value) {
+AlmondDevice.prototype.setProp = function(prop, value) {
     var self = this;
 
     this.client._sendMessage({
         "CommandType":"UpdateDeviceIndex",
         "ID": this.id,
-        "Index": id,
+        "Index": prop,
         "Value": value
     }, function(err, message) {
         if (message.Success) {
-            debug("Successfully updated value", id, "to", value)
-            self.updateValue(id, value);
+            debug("Successfully updated value", prop, "to", value)
+            self.updateProp(prop, value);
         }
     });
 }
 
-AlmondDevice.prototype.updateValue = function(id, value) {
-    if (typeof this.deviceValues[id] === "undefined") return;
-    if (this.deviceValues[id].value === value) return;
+AlmondDevice.prototype.getProp = function(prop) {
+    return this._deviceValues[prop];
+}
 
-    debug("Updating value", id, "from", this.deviceValues[id].value, "to", value);
-    this.deviceValues[id].value = value;
-    this.emit("valueUpdated", id, value);
+AlmondDevice.prototype.updateProp = function(prop, value) {
+    if (typeof this._deviceValues[prop] === "undefined") return;
+    if (this._deviceValues[prop].value === value) return;
+
+    debug("Updating value", prop, "from", this._deviceValues[prop].value, "to", value);
+    this._deviceValues[prop].value = value;
+    this.emit("valueUpdated", prop, value);
 }
 
 util.inherits(AlmondDevice, EventEmitter);

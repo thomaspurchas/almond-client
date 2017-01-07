@@ -6,13 +6,13 @@ client.on("ready", function() {
     console.log("Ready", this);
     var device = this.getDeviceById("1");
     console.log(device);
-    device.setValue("1", true);
+    device.setProp(device.props.SwitchBinary, true);
     device.on("valueUpdated", function(id, value) {
         console.log(["afewf", id, value]);
 
         if (id == "1" && value == "true") {
             console.log("Turning light off again")
-            this.setValue("1", false);
+            this.setProp(device.props.SwitchBinary, false);
         }
     })
 })
