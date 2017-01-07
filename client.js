@@ -34,6 +34,8 @@ var AlmondClient = module.exports = function(config) {
 
 util.inherits(AlmondClient, EventEmitter);
 
+AlmondClient.DEVICE_TYPE = require("./deviceTypes.js")
+
 AlmondClient.prototype.getDevices = function() {
     var devices = [];
     for (var device in this._devices) {
