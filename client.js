@@ -162,15 +162,13 @@ AlmondDevice.prototype.setProp = function(prop, value, cb) {
             debug("Successfully updated value", prop, "to", value)
             self.updateProp(prop, value);
 
-            if (cb != undefined) {
-                cb(null);
-            }
+            if (cb) cb(null);
         }
     });
 }
 
 AlmondDevice.prototype.getProp = function(prop) {
-    return this._deviceValues[prop];
+    return this._deviceValues[prop].value;
 }
 
 AlmondDevice.prototype.updateProp = function(prop, value) {
