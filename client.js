@@ -149,6 +149,8 @@ var AlmondDevice = function(client, config) {
     }
 }
 
+util.inherits(AlmondDevice, EventEmitter);
+
 AlmondDevice.prototype.setProp = function(prop, value, cb) {
     var self = this;
 
@@ -186,8 +188,6 @@ AlmondDevice.prototype.updateProp = function(prop, value) {
     this._deviceValues[prop].value = value;
     this.emit("valueUpdated", prop, value);
 }
-
-util.inherits(AlmondDevice, EventEmitter);
 
 var WebSocketEmitter = function() {
     EventEmitter.call(this);
