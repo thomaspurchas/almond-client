@@ -13,7 +13,7 @@
     "url": "https://github.com/thomaspurchas/almond-client"
   },
   "dependencies": {
-    "debug": "^2.6.0",
+    "debug": "^3.1.0",
     "randomstring": "^1.1.5",
     "ws": "^1.1.1"
   }
